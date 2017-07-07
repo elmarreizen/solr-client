@@ -29,23 +29,24 @@ class HttpClientSpec extends SolrSpec {
         "name" -> DataType.String,
         "age" -> DataType.Int
       ))
+      import FieldValue._
       val request = UpdateRequest(
         collection = "collection",
         payload = DocumentList(
           Document(
-            ("id", FieldValue.Primitive.String("1")),
-            ("name", FieldValue.Primitive.String("Peter")),
-            ("age", FieldValue.Primitive.String("45"))
+            ("id", Primitive(PrimitiveValue String "1")),
+            ("name", Primitive(PrimitiveValue String "Peter")),
+            ("age", Primitive(PrimitiveValue String "45"))
           ),
           Document(
-            ("id", FieldValue.Primitive.String("2")),
-            ("name", FieldValue.Primitive.String("John")),
-            ("age", FieldValue.Primitive.String("20"))
+            ("id", Primitive(PrimitiveValue String "2")),
+            ("name", Primitive(PrimitiveValue String "John")),
+            ("age", Primitive(PrimitiveValue String "20"))
           ),
           Document(
-            ("id", FieldValue.Primitive.String("3")),
-            ("name", FieldValue.Primitive.String("Ralph")),
-            ("age", FieldValue.Primitive.String("33"))
+            ("id", Primitive(PrimitiveValue String "3")),
+            ("name", Primitive(PrimitiveValue String "Ralph")),
+            ("age", Primitive(PrimitiveValue String "33"))
           )
         )
       )
@@ -73,8 +74,8 @@ class HttpClientSpec extends SolrSpec {
               value.documents.size === 1
               value.documents.head must beLike[Document] {
                 case doc: Document =>
-                  doc.fields.get("name") must beSome(FieldValue.Primitive.String("Ralph"))
-                  doc.fields.get("age") must beSome(FieldValue.Primitive.Int(33))
+                  doc.fields.get("name") must beSome(Primitive(PrimitiveValue String "Ralph"))
+                  doc.fields.get("age") must beSome(Primitive(PrimitiveValue Int 33))
               }
           }
       }.awaitFor(timeout)

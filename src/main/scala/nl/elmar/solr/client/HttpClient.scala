@@ -245,17 +245,15 @@ object DocumentListWriter {
 
   import JsonRenderCommon._
 
-  val primitiveValueWriter = Writes[FieldValue.Primitive] {
-    case FieldValue.Primitive.Date(value) => JsString(renderDate(value))
-    case FieldValue.Primitive.Int(value) => JsString(value.toString)
-    case FieldValue.Primitive.String(value) => JsString(value)
-    case FieldValue.Primitive.Null => JsNull
-  }
-
   implicit val fieldValueWriter = Writes[FieldValue] {
     def renderFieldValue(fieldValueValue: FieldValue): JsValue = fieldValueValue match {
-      case v: FieldValue.Primitive => primitiveValueWriter writes v
+      case FieldValue.Primitive(primitiveValue) => primitiveValue match {
+        case FieldValue.PrimitiveValue.Date(value) => JsString(renderDate(value))
+        case FieldValue.PrimitiveValue.Int(value) => JsString(value.toString)
+        case FieldValue.PrimitiveValue.String(value) => JsString(value)
+      }
       case FieldValue.Array(values) => JsArray(values map renderFieldValue)
+      case FieldValue.Null => JsNull
     }
     renderFieldValue
   }

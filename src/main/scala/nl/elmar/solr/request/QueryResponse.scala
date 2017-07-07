@@ -25,12 +25,13 @@ class QueryResponseParser(response: QueryResponse, schema: Schema) {
   private val documentReader = Reads[Document] { jsValue =>
 
     def typeReader(dataType: DataType): Reads[FieldValue] = {
+      import FieldValue._
       dataType match {
-        case DataType.Date => localDateReader.map(date => FieldValue.Primitive Date date)
-        case DataType.Int => implicitly[Reads[Int]].map(int => FieldValue.Primitive Int int)
-        case DataType.String => implicitly[Reads[String]].map(string => FieldValue.Primitive String string)
+        case DataType.Date => localDateReader.map(date => Primitive(PrimitiveValue.Date(date)))
+        case DataType.Int => implicitly[Reads[Int]].map(int => Primitive(PrimitiveValue.Int(int)))
+        case DataType.String => implicitly[Reads[String]].map(string => Primitive(PrimitiveValue.String(string)))
         case DataType.Array(ofType) => Reads.list(typeReader(ofType)).map( list => FieldValue Array list)
-        case DataType.Optional(ofType) => Reads.optionWithNull(typeReader(ofType)).map( opt => opt getOrElse FieldValue.Primitive.Null)
+        case DataType.Optional(ofType) => Reads.optionWithNull(typeReader(ofType)).map( opt => opt getOrElse FieldValue.Null)
       }
     }
 
