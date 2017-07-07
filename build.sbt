@@ -18,3 +18,9 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
   "com.typesafe.akka" %% "akka-http-testkit" % `akka-http-version` % "test"
 )
+
+bintrayOrganization := Some("elmarreizen")
+
+bintrayOmitLicense := true
+
+bintrayReleaseOnPublish := false
