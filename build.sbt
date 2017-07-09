@@ -19,8 +19,34 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-testkit" % `akka-http-version` % "test"
 )
 
-bintrayOrganization := Some("elmarreizen")
+homepage := Some(url("https://github.com/elmarreizen/solr-client"))
 
-bintrayOmitLicense := true
+licenses := Seq("Apache 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-bintrayReleaseOnPublish := false
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/elmarreizen/solr-client"),
+    "scm:git@github.com:elmarreizen/solr-client.git"
+  )
+)
+
+developers := List(
+  Developer(
+    id    = "lavrov",
+    name  = "Vitaly Lavrov",
+    email = "",
+    url   = url("https://github.com/lavrov")
+  )
+)
+
+publishMavenStyle := true
+
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
+publishArtifact in Test := false
