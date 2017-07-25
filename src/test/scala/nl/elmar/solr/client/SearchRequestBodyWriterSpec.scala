@@ -1,17 +1,18 @@
 package nl.elmar.solr.client
 
+import nl.elmar.solr.client.search._
 import nl.elmar.solr.request._
 
-class QueryWriterSpec extends org.specs2.mutable.Specification {
+class SearchRequestBodyWriterSpec extends org.specs2.mutable.Specification {
 
   "QueryWriter" should {
     "render empty query" in {
-      QueryWriter.toJson(Query()).toString === """{"query":"*:*"}"""
+      QueryWriter.toJson(SearchRequestBody()).toString === """{"query":"*:*"}"""
     }
 
     "render result grouping" in {
       val query =
-        Query(
+        SearchRequestBody(
           start = Some(10),
           rows = Some(20),
           grouping = Some(
@@ -33,7 +34,7 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
           ) :: Nil
         )
       ) :: Nil
-      val query = Query(facets = facets)
+      val query = SearchRequestBody(facets = facets)
       QueryWriter.toJson(query).toString === """{"query":"*:*","facet":{"countries":{"type":"terms","field":"country","facet":{"uniqueCount":"unique(groupField)"},"domain":{"excludeTags":["country"]}}}}"""
     }
 

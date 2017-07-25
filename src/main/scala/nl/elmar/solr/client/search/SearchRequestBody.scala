@@ -1,13 +1,8 @@
-package nl.elmar.solr.request
+package nl.elmar.solr.client.search
 
 import java.time.LocalDate
 
-case class QueryRequest(
-    collection: String,
-    query: Query = Query()
-)
-
-case class Query(
+case class SearchRequestBody(
     filter: List[FilterExpression] = Nil,
     routing: List[String] = Nil,
     start: Option[Long] = None,

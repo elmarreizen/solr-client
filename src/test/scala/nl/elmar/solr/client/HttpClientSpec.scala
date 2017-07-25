@@ -1,6 +1,8 @@
 package nl.elmar.solr.client
 
 import nl.elmar.solr._
+import nl.elmar.solr.client.search._
+import nl.elmar.solr.client.update.UpdateRequest
 import nl.elmar.solr.request._
 import org.specs2.concurrent.ExecutionEnv
 import play.api.libs.json.{JsResult, JsSuccess}
@@ -17,7 +19,7 @@ class HttpClientSpec extends SolrSpec {
     }
 
    "get results with query" in { implicit ee: ExecutionEnv =>
-      val query = QueryRequest("collection")
+      val query = SearchRequest("collection")
       httpClient.query(query) must beLike[QueryResponse] {
         case response: QueryResponse =>
           response.body.numFound must beEqualTo(0)
@@ -56,13 +58,13 @@ class HttpClientSpec extends SolrSpec {
           status mustEqual 0
       }.awaitFor(timeout)
       val query =
-        Query(
-          filter = FilterExpression.Field("age", ValueExpression.Term.String("33")) :: Nil,
+        SearchRequestBody(
+          filter = FilterDefinition("age", FilterExpression.Term.String("33")) :: Nil,
           facets =
             FacetDefinition("ages",
               FacetMetadata.Terms("age", subFacets = FacetDefinition("unique", FacetMetadata.Unique("name")) :: Nil)) :: Nil
         )
-      httpClient.query(QueryRequest("collection", query)) must beLike[QueryResponse] {
+      httpClient.query(SearchRequest("collection", query)) must beLike[QueryResponse] {
         case response: QueryResponse =>
           response.body.numFound === 1
           response.facets must beSome[ResponseFacets].like {
