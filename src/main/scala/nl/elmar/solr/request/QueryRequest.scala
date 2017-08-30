@@ -80,6 +80,8 @@ object FacetMetadata {
 
   case class Min(field: String) extends FacetMetadata
 
+  case class Max(field: String) extends FacetMetadata
+
   case class Domain(excludeTags: List[String])
 
   implicit class BucketFacetOps[A <: FormBuckets](val thisFacet: FormBuckets) extends AnyVal {

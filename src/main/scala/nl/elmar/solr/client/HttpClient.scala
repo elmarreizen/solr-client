@@ -207,6 +207,7 @@ object QueryWriter {
     case range: FacetMetadata.Range => Json toJson range
     case unique: FacetMetadata.Unique => Json toJson unique
     case FacetMetadata.Min(field) => JsString(s"min($field)")
+    case FacetMetadata.Max(field) => JsString(s"max($field)")
   }
 
   val facetListWriter = OWrites[List[FacetDefinition]] {
