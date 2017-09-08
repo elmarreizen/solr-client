@@ -17,7 +17,24 @@ case class Query(
     facets: List[FacetDefinition] = Nil
 )
 
-case class FilterDefinition(fieldName: String, exp: FilterExpression, tag: Option[String] = None)
+sealed trait FilterDefinition
+
+object FilterDefinition {
+  case class Term(fieldName: String, exp: FilterExpression, tag: Option[String] = None) extends FilterDefinition
+  case class OR(left: FilterDefinition, right: FilterDefinition) extends FilterDefinition
+  case class AND(left: FilterDefinition, right: FilterDefinition) extends FilterDefinition
+
+  def apply(fieldName: String, exp: FilterExpression, tag: Option[String] = None): FilterDefinition =
+    Term(fieldName, exp, tag)
+
+  class FilterDefinitionWithConcatenation(fd: FilterDefinition) {
+    def or(other: FilterDefinition) = OR(fd, other)
+    def and(other: FilterDefinition) = AND(fd, other)
+  }
+
+  implicit def _enhanceFilterDefinitionWithConcatenation(fd: FilterDefinition): FilterDefinitionWithConcatenation =
+    new FilterDefinitionWithConcatenation(fd)
+}
 
 sealed trait FilterExpression
 
