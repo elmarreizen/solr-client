@@ -150,10 +150,14 @@ object QueryWriter {
       s"(NOT ${renderFilterExpression(expression)})"
   }
 
-  def renderFilterDefinition(filterDefinition: FilterDefinition) = {
-    val FilterDefinition(fieldName, exp, tagOpt) = filterDefinition
-    val tag = tagOpt map (tag => s"{!tag=$tag}") getOrElse ""
-    s"$tag$fieldName:${renderFilterExpression(exp)}"
+  def renderFilterDefinition(fd: FilterDefinition): String = fd match {
+    case FilterDefinition.Term(fieldName, exp, tagOpt) =>
+      val tag = tagOpt map (tag => s"{!tag=$tag}") getOrElse ""
+      s"$tag$fieldName:${renderFilterExpression(exp)}"
+    case FilterDefinition.OR(left, right) =>
+      s"(${renderFilterDefinition(left)} OR ${renderFilterDefinition(right)})"
+    case FilterDefinition.AND(left,right) =>
+      s"(${renderFilterDefinition(left)} AND ${renderFilterDefinition(right)})"
   }
 
   implicit val sortingWriter = Writes[Sorting] {
