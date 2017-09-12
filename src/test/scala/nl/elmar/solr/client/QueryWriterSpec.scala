@@ -38,7 +38,7 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
     }
 
     "render AND expression" in {
-      import FilterExpression._
+      import ValueExpression._
 
       val exp = AND(Term.Long(1), AND(Term.Long(2), AND(Term.Long(3), Term.Long(4))))
 
@@ -46,7 +46,7 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
     }
 
     "render AND and OR expression combination" in {
-      import FilterExpression._
+      import ValueExpression._
 
       val exp =
         OR(
@@ -60,18 +60,17 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
       QueryWriter.renderFilterExpression(exp) === "(0 OR (1 AND 2 AND 3 AND 4) OR 10)"
     }
 
-    "render filter definition" in {
-      val fd1 = FilterDefinition("test1", FilterExpression.Term.Long(0), Some("testtag1"))
+    "render filter expression" in {
+      val fd1 = FilterExpression.Field("test1", ValueExpression.Term.Long(0), Some("testtag1"))
 
       QueryWriter.renderFilterDefinition(fd1) === "{!tag=testtag1} test1:0"
     }
 
-    "render OR filter definition" in {
-      import FilterDefinition._
+    "render field expressions combined with OR" in {
 
-      val fd1 = FilterDefinition("test1", FilterExpression.Term.Long(0), Some("testtag1"))
-      val fd2 = FilterDefinition("test2", FilterExpression.Term.String("testexp"), Some("testtag2"))
-      val or = fd1 or fd2
+      val fd1 = FilterExpression.Field("test1", ValueExpression.Term.Long(0), Some("testtag1"))
+      val fd2 = FilterExpression.Field("test2", ValueExpression.Term.String("testexp"), Some("testtag2"))
+      val or = FilterExpression.OR(fd1, fd2)
 
       QueryWriter.renderFilterDefinition(or) === "{!tag=testtag1} test1:0 OR {!tag=testtag2} test2:testexp"
     }

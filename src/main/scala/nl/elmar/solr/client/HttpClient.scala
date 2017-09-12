@@ -116,45 +116,45 @@ object JsonRenderCommon {
 object QueryWriter {
   import JsonRenderCommon._
 
-  def renderOrUnrolled(exp: FilterExpression): String = {
+  def renderOrUnrolled(exp: ValueExpression): String = {
     exp match {
-      case FilterExpression.OR(left: FilterExpression, right: FilterExpression) =>
+      case ValueExpression.OR(left: ValueExpression, right: ValueExpression) =>
         s"${renderOrUnrolled(left)} OR ${renderOrUnrolled(right)}"
-      case other: FilterExpression =>
+      case other: ValueExpression =>
         renderFilterExpression(other)
     }
   }
 
-  def renderAndUnrolled(exp: FilterExpression): String = {
+  def renderAndUnrolled(exp: ValueExpression): String = {
     exp match {
-      case FilterExpression.AND(left: FilterExpression, right: FilterExpression) =>
+      case ValueExpression.AND(left: ValueExpression, right: ValueExpression) =>
         s"${renderAndUnrolled(left)} AND ${renderAndUnrolled(right)}"
-      case other: FilterExpression =>
+      case other: ValueExpression =>
         renderFilterExpression(other)
     }
   }
 
-  def renderFilterExpression(value: FilterExpression): String = value match {
-    case FilterExpression.Term.String(v) => v.replace(":", """\:""")
-    case FilterExpression.Term.Long(v) => v.toString
-    case FilterExpression.Term.Date(v) => renderDate(v)
-    case FilterExpression.Range(fromOpt, toOpt) =>
+  def renderFilterExpression(value: ValueExpression): String = value match {
+    case ValueExpression.Term.String(v) => v.replace(":", """\:""")
+    case ValueExpression.Term.Long(v) => v.toString
+    case ValueExpression.Term.Date(v) => renderDate(v)
+    case ValueExpression.Range(fromOpt, toOpt) =>
       val from = fromOpt.map(renderFilterExpression).getOrElse("*")
       val to = toOpt.map(renderFilterExpression).getOrElse("*")
       s"[$from TO $to]"
-    case FilterExpression.OR(left, right) =>
+    case ValueExpression.OR(left, right) =>
       s"(${renderOrUnrolled(left)} OR ${renderOrUnrolled(right)})"
-    case FilterExpression.AND(left, right) =>
+    case ValueExpression.AND(left, right) =>
       s"(${renderAndUnrolled(left)} AND ${renderAndUnrolled(right)})"
-    case FilterExpression.NOT(expression) =>
+    case ValueExpression.NOT(expression) =>
       s"(NOT ${renderFilterExpression(expression)})"
   }
 
-  def renderFilterDefinition(fd: FilterDefinition): String = fd match {
-    case FilterDefinition.Term(fieldName, exp, tagOpt) =>
+  def renderFilterDefinition(fd: FilterExpression): String = fd match {
+    case FilterExpression.Field(fieldName, exp, tagOpt) =>
       val tag = tagOpt map (tag => s"{!tag=$tag}") getOrElse ""
       s"$tag $fieldName:${renderFilterExpression(exp)}"
-    case FilterDefinition.OR(left, right) =>
+    case FilterExpression.OR(left, right) =>
       s"${renderFilterDefinition(left)} OR ${renderFilterDefinition(right)}"
   }
 
@@ -167,7 +167,7 @@ object QueryWriter {
       JsString(s"$field $ord")
   }
 
-  implicit val filterDefinitionWriter = Writes[FilterDefinition] { fd =>
+  implicit val filterDefinitionWriter = Writes[FilterExpression] { fd =>
     JsString(renderFilterDefinition(fd))
   }
 
@@ -233,7 +233,7 @@ object QueryWriter {
 
   implicit val queryWriter: Writes[Query] = (
     (__ \ "query").write[String] and
-    (__ \ "filter").writeNonEmptyList[FilterDefinition] and
+    (__ \ "filter").writeNonEmptyList[FilterExpression] and
     (__ \ "params" \ "_route_").writeNonEmptyList[String](routingListWriter) and
     (__ \ "params" \ "sort").writeNullable[Sorting] and
     (__ \ "params" \ "start").writeNullable[Long] and

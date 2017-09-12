@@ -8,7 +8,7 @@ case class QueryRequest(
 )
 
 case class Query(
-    filter: List[FilterDefinition] = Nil,
+    filter: List[FilterExpression] = Nil,
     routing: List[String] = Nil,
     start: Option[Long] = None,
     rows: Option[Long] = None,
@@ -17,27 +17,17 @@ case class Query(
     facets: List[FacetDefinition] = Nil
 )
 
-sealed trait FilterDefinition
-
-object FilterDefinition {
-  case class Term(fieldName: String, exp: FilterExpression, tag: Option[String] = None) extends FilterDefinition
-  case class OR(left: FilterDefinition, right: FilterDefinition) extends FilterDefinition
-
-  def apply(fieldName: String, exp: FilterExpression, tag: Option[String] = None): FilterDefinition =
-    Term(fieldName, exp, tag)
-
-  class FilterDefinitionWithConcatenation(fd: FilterDefinition) {
-    def or(other: FilterDefinition) = OR(fd, other)
-  }
-
-  implicit def _enhanceFilterDefinitionWithConcatenation(fd: FilterDefinition): FilterDefinitionWithConcatenation =
-    new FilterDefinitionWithConcatenation(fd)
-}
-
 sealed trait FilterExpression
 
 object FilterExpression {
-  sealed trait Term extends FilterExpression
+  case class Field(name: String, exp: ValueExpression, tag: Option[String] = None) extends FilterExpression
+  case class OR(left: FilterExpression, right: FilterExpression) extends FilterExpression
+}
+
+sealed trait ValueExpression extends FilterExpression
+
+object ValueExpression {
+  sealed trait Term extends ValueExpression
 
   object Term {
     case class Date(value: LocalDate) extends Term
@@ -45,11 +35,11 @@ object FilterExpression {
     case class String(value: java.lang.String) extends Term
   }
 
-  case class OR(left: FilterExpression, right: FilterExpression) extends FilterExpression
-  case class AND(left: FilterExpression, right: FilterExpression) extends FilterExpression
-  case class NOT(FilterExpression: FilterExpression) extends FilterExpression
+  case class OR(left: ValueExpression, right: ValueExpression) extends ValueExpression
+  case class AND(left: ValueExpression, right: ValueExpression) extends ValueExpression
+  case class NOT(FilterExpression: ValueExpression) extends ValueExpression
 
-  case class Range(from: Option[Term], to: Option[Term]) extends FilterExpression
+  case class Range(from: Option[Term], to: Option[Term]) extends ValueExpression
 }
 
 case class FacetDefinition(

@@ -2,7 +2,7 @@ name := "solr-client"
 
 organization := "nl.elmar"
 
-version := "0.4.1"
+version := "0.5.0"
 
 scalaVersion := "2.12.2"
 
