@@ -42,7 +42,7 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
 
       val exp = AND(Term.Long(1), AND(Term.Long(2), AND(Term.Long(3), Term.Long(4))))
 
-      QueryWriter.renderFilterExpression(exp) === "(1 AND 2 AND 3 AND 4)"
+      QueryWriter.renderValueExpression(exp) === "(1 AND 2 AND 3 AND 4)"
     }
 
     "render AND and OR expression combination" in {
@@ -57,13 +57,13 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
           )
         )
 
-      QueryWriter.renderFilterExpression(exp) === "(0 OR (1 AND 2 AND 3 AND 4) OR 10)"
+      QueryWriter.renderValueExpression(exp) === "(0 OR (1 AND 2 AND 3 AND 4) OR 10)"
     }
 
     "render filter expression" in {
       val fd1 = FilterExpression.Field("test1", ValueExpression.Term.Long(0), Some("testtag1"))
 
-      QueryWriter.renderFilterDefinition(fd1) === "{!tag=testtag1} test1:0"
+      QueryWriter.renderFilterExpression(fd1) === "{!tag=testtag1} test1:0"
     }
 
     "render field expressions combined with OR" in {
@@ -72,14 +72,14 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
       val fd2 = FilterExpression.Field("test2", ValueExpression.Term.String("testexp"), Some("testtag2"))
       val or = FilterExpression.OR(fd1, fd2)
 
-      QueryWriter.renderFilterDefinition(or) === "{!tag=testtag1} test1:0 OR {!tag=testtag2} test2:testexp"
+      QueryWriter.renderFilterExpression(or) === "{!tag=testtag1} test1:0 OR {!tag=testtag2} test2:testexp"
     }
 
     "quote string containing spaces" in {
       val name = FilterExpression.Field("name", ValueExpression.Term.String("John"))
-      QueryWriter.renderFilterDefinition(name) === "name:John"
+      QueryWriter.renderFilterExpression(name) === "name:John"
       val fullName = FilterExpression.Field("fullName", ValueExpression.Term.String("John Doe"))
-      QueryWriter.renderFilterDefinition(fullName) === "fullName:\"John Doe\""
+      QueryWriter.renderFilterExpression(fullName) === "fullName:\"John Doe\""
     }
   }
 

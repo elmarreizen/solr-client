@@ -123,7 +123,7 @@ object QueryWriter {
       case ValueExpression.OR(left: ValueExpression, right: ValueExpression) =>
         s"${renderOrUnrolled(left)} OR ${renderOrUnrolled(right)}"
       case other: ValueExpression =>
-        renderFilterExpression(other)
+        renderValueExpression(other)
     }
   }
 
@@ -132,32 +132,34 @@ object QueryWriter {
       case ValueExpression.AND(left: ValueExpression, right: ValueExpression) =>
         s"${renderAndUnrolled(left)} AND ${renderAndUnrolled(right)}"
       case other: ValueExpression =>
-        renderFilterExpression(other)
+        renderValueExpression(other)
     }
   }
 
-  def renderFilterExpression(value: ValueExpression): String = value match {
+  def renderValueExpression(value: ValueExpression): String = value match {
     case ValueExpression.Term.String(v) => if (OnlyLetterDigit.findAllIn(v).hasNext) v else raw""""$v""""
     case ValueExpression.Term.Long(v) => v.toString
     case ValueExpression.Term.Date(v) => renderDate(v)
     case ValueExpression.Range(fromOpt, toOpt) =>
-      val from = fromOpt.map(renderFilterExpression).getOrElse("*")
-      val to = toOpt.map(renderFilterExpression).getOrElse("*")
+      val from = fromOpt.map(renderValueExpression).getOrElse("*")
+      val to = toOpt.map(renderValueExpression).getOrElse("*")
       s"[$from TO $to]"
     case ValueExpression.OR(left, right) =>
       s"(${renderOrUnrolled(left)} OR ${renderOrUnrolled(right)})"
     case ValueExpression.AND(left, right) =>
       s"(${renderAndUnrolled(left)} AND ${renderAndUnrolled(right)})"
     case ValueExpression.NOT(expression) =>
-      s"(NOT ${renderFilterExpression(expression)})"
+      s"(NOT ${renderValueExpression(expression)})"
   }
 
-  def renderFilterDefinition(fd: FilterExpression): String = fd match {
+  def renderFilterExpression(fd: FilterExpression): String = fd match {
     case FilterExpression.Field(fieldName, exp, tagOpt) =>
       val tag = tagOpt map (tag => s"{!tag=$tag} ") getOrElse ""
-      s"$tag$fieldName:${renderFilterExpression(exp)}"
+      s"$tag$fieldName:${renderValueExpression(exp)}"
     case FilterExpression.OR(left, right) =>
-      s"${renderFilterDefinition(left)} OR ${renderFilterDefinition(right)}"
+      s"${renderFilterExpression(left)} OR ${renderFilterExpression(right)}"
+    case ve: ValueExpression =>
+      renderValueExpression(ve)
   }
 
   implicit val sortingWriter = Writes[Sorting] {
@@ -170,7 +172,7 @@ object QueryWriter {
   }
 
   implicit val filterDefinitionWriter = Writes[FilterExpression] { fd =>
-    JsString(renderFilterDefinition(fd))
+    JsString(renderFilterExpression(fd))
   }
 
   implicit val facetMetadataDomainWriter: Writes[FacetMetadata.Domain] =
