@@ -74,6 +74,13 @@ class QueryWriterSpec extends org.specs2.mutable.Specification {
 
       QueryWriter.renderFilterDefinition(or) === "{!tag=testtag1} test1:0 OR {!tag=testtag2} test2:testexp"
     }
+
+    "quote string containing spaces" in {
+      val name = FilterExpression.Field("name", ValueExpression.Term.String("John"))
+      QueryWriter.renderFilterDefinition(name) === "name:John"
+      val fullName = FilterExpression.Field("fullName", ValueExpression.Term.String("John Doe"))
+      QueryWriter.renderFilterDefinition(fullName) === "fullName:\"John Doe\""
+    }
   }
 
 }

@@ -92,6 +92,8 @@ class HttpClient(uri: Uri)(implicit materializer: ActorMaterializer) {
 object JsonRenderCommon {
   val dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T00:00:00Z'")
 
+  val OnlyLetterDigit = "^[a-zA-Z0-9]+$".r
+
   def renderDate(date: LocalDate) = {
     val rendered = date format dateTime
     raw""" "$rendered" """
@@ -135,7 +137,7 @@ object QueryWriter {
   }
 
   def renderFilterExpression(value: ValueExpression): String = value match {
-    case ValueExpression.Term.String(v) => raw""""$v""""
+    case ValueExpression.Term.String(v) => if (OnlyLetterDigit.findAllIn(v).hasNext) v else raw""""$v""""
     case ValueExpression.Term.Long(v) => v.toString
     case ValueExpression.Term.Date(v) => renderDate(v)
     case ValueExpression.Range(fromOpt, toOpt) =>
@@ -152,8 +154,8 @@ object QueryWriter {
 
   def renderFilterDefinition(fd: FilterExpression): String = fd match {
     case FilterExpression.Field(fieldName, exp, tagOpt) =>
-      val tag = tagOpt map (tag => s"{!tag=$tag}") getOrElse ""
-      s"$tag $fieldName:${renderFilterExpression(exp)}"
+      val tag = tagOpt map (tag => s"{!tag=$tag} ") getOrElse ""
+      s"$tag$fieldName:${renderFilterExpression(exp)}"
     case FilterExpression.OR(left, right) =>
       s"${renderFilterDefinition(left)} OR ${renderFilterDefinition(right)}"
   }
