@@ -135,7 +135,7 @@ object QueryWriter {
   }
 
   def renderFilterExpression(value: ValueExpression): String = value match {
-    case ValueExpression.Term.String(v) => v.replace(":", """\:""")
+    case ValueExpression.Term.String(v) => raw""""$v""""
     case ValueExpression.Term.Long(v) => v.toString
     case ValueExpression.Term.Date(v) => renderDate(v)
     case ValueExpression.Range(fromOpt, toOpt) =>
