@@ -2,8 +2,6 @@ name := "solr-client"
 
 organization := "nl.elmar"
 
-version := "0.7.0-SNAPSHOT"
-
 scalaVersion := "2.12.2"
 
 val `akka-http-version` = "10.0.5"
