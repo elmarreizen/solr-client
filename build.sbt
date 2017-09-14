@@ -48,3 +48,22 @@ publishTo := {
 }
 
 publishArtifact in Test := false
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+import ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  releaseStepCommand(Sonatype.SonatypeCommand.sonatypeRelease),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
