@@ -22,8 +22,6 @@ abstract class SolrSpec
 
   implicit val materializer = ActorMaterializer()
 
-  def httpClient = new HttpClient(Uri("http://localhost:8983/solr"))
-
   override def beforeAll() = {
     System.setProperty("solr.data.dir", tempDir.toFile.getAbsolutePath)
     runner = new JettySolrRunner("./src/test/resources/solr", "/solr", 8983)
