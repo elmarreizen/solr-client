@@ -1,8 +1,5 @@
 package nl.elmar.solr.client
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import JsonMarshaller._
@@ -10,7 +7,6 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import nl.elmar.solr.client.search._
 import nl.elmar.solr.client.update.UpdateRequest
-import nl.elmar.solr.{Document, DocumentList, FieldValue}
 import nl.elmar.solr.request._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
