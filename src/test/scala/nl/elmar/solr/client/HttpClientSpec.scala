@@ -59,7 +59,7 @@ class HttpClientSpec extends SolrSpec {
       }.awaitFor(timeout)
       val query =
         SearchRequestBody(
-          filter = FilterDefinition("age", FilterExpression.Term.String("33")) :: Nil,
+          filter = FilterExpression.Field("age", ValueExpression.Term.String("33")) :: Nil,
           facets =
             FacetDefinition("ages",
               FacetMetadata.Terms("age", subFacets = FacetDefinition("unique", FacetMetadata.Unique("name")) :: Nil)) :: Nil
