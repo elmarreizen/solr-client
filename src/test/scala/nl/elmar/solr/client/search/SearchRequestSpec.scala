@@ -16,7 +16,7 @@ class SearchRequestSpec extends org.specs2.mutable.Specification {
             ResultGrouping("field1", sort = Some(Sorting("field2", SortOrder.Desc)))
           )
         )
-      SearchRequest.bodyWriter.writes(query).toString === """{"query":"*:*","params":{"start":10,"rows":20,"group":true,"group.field":"field1","group.sort":"field2 desc"}}"""
+      SearchRequest.bodyWriter.writes(query).toString === """{"query":"*:*","params":{"start":10,"rows":20,"group":true,"group.field":"field1","group.sort":"field2 desc","group.ngroups":false}}"""
     }
 
     "render facets" in {

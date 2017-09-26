@@ -105,7 +105,8 @@ object FacetMetadata {
 
 case class ResultGrouping(
     field: String,
-    sort: Option[Sorting]
+    sort: Option[Sorting],
+    numberOfGroups: Boolean = false
 )
 
 case class Sorting(
@@ -234,8 +235,9 @@ object SearchRequest {
   implicit val resultGroupingWriter: Writes[ResultGrouping] = (
     (__ \ "group").write[Boolean] and
       (__ \ "group.field").write[String] and
-      (__ \ "group.sort").writeNullable[Sorting]
-    )(rg => (true, rg.field, rg.sort))
+      (__ \ "group.sort").writeNullable[Sorting] and
+      (__ \ "group.ngroups").write[Boolean]
+    )(rg => (true, rg.field, rg.sort, rg.numberOfGroups))
 
   val routingListWriter: Writes[List[String]] = { list =>
     JsString(list.map(_ + "!").mkString(","))
