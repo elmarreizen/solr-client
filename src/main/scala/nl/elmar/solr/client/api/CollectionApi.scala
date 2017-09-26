@@ -10,7 +10,7 @@ class CollectionApi(solrApi: SolrApi, collectionsApi: CollectionsApi, name: Stri
     body =>
       HttpRequest(
         method = HttpMethods.POST,
-        uri = solrApi.uri.withPath(path / "query"),
+        uri = solrApi.uri.withPath(Path / "solr" / name / "query"),
         entity =
           HttpEntity(
             ContentTypes.`application/json`,
