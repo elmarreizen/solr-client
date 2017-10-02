@@ -167,7 +167,7 @@ object SearchRequest {
     case FilterExpression.OR(left, right) =>
       s"${renderFilterExpression(left)} OR ${renderFilterExpression(right)}"
     case FilterExpression.AND(left, right) =>
-      s"${renderFilterExpression(left)} AND ${renderFilterExpression(right)}"
+      s"(${renderFilterExpression(left)} AND ${renderFilterExpression(right)})"
     case ve: ValueExpression =>
       renderValueExpression(ve)
   }
