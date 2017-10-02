@@ -21,6 +21,7 @@ sealed trait FilterExpression
 object FilterExpression {
   case class Field(name: String, exp: ValueExpression, tag: Option[String] = None) extends FilterExpression
   case class OR(left: FilterExpression, right: FilterExpression) extends FilterExpression
+  case class AND(left: FilterExpression, right: FilterExpression) extends FilterExpression
 }
 
 sealed trait ValueExpression extends FilterExpression
@@ -165,6 +166,8 @@ object SearchRequest {
       s"$tag$fieldName:${renderValueExpression(exp)}"
     case FilterExpression.OR(left, right) =>
       s"${renderFilterExpression(left)} OR ${renderFilterExpression(right)}"
+    case FilterExpression.AND(left, right) =>
+      s"${renderFilterExpression(left)} AND ${renderFilterExpression(right)}"
     case ve: ValueExpression =>
       renderValueExpression(ve)
   }
