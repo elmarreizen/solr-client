@@ -19,10 +19,13 @@ case class SearchRequest(
 sealed trait FilterExpression
 
 object FilterExpression {
-  case class Field(name: String,
-                   exp: ValueExpression,
-                   tag: Option[String] = None,
-                   negative: Boolean = false) extends FilterExpression
+
+  case class Field(
+      name: String,
+      exp: ValueExpression,
+      tag: Option[String] = None,
+      negative: Boolean = false
+  ) extends FilterExpression
 
   case class OR(left: FilterExpression, right: FilterExpression) extends FilterExpression
   case class AND(left: FilterExpression, right: FilterExpression) extends FilterExpression
