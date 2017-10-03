@@ -41,7 +41,7 @@ object ValueExpression {
 
   case class OR(left: ValueExpression, right: ValueExpression) extends ValueExpression
   case class AND(left: ValueExpression, right: ValueExpression) extends ValueExpression
-  case class NOT(FilterExpression: ValueExpression) extends ValueExpression
+  case class NOT(exp: ValueExpression) extends ValueExpression
 
   case class Range(from: Option[Term], to: Option[Term]) extends ValueExpression
 }
