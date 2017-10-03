@@ -34,6 +34,8 @@ object ValueExpression {
   sealed trait Term extends ValueExpression
 
   object Term {
+    case object All extends Term
+
     case class Date(value: LocalDate) extends Term
     case class Long(value: scala.Long) extends Term
     case class String(value: java.lang.String) extends Term
@@ -149,6 +151,7 @@ object SearchRequest {
   }
 
   def renderValueExpression(value: ValueExpression): String = value match {
+    case ValueExpression.Term.All => "*"
     case ValueExpression.Term.String(v) => if (OnlyLetterDigit.findAllIn(v).hasNext) v else raw""""$v""""
     case ValueExpression.Term.Long(v) => v.toString
     case ValueExpression.Term.Date(v) => renderDate(v)
