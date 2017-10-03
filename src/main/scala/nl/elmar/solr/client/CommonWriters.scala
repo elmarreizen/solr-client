@@ -9,7 +9,7 @@ import play.api.libs.functional.syntax._
 object CommonWriters {
   val dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T00:00:00Z'")
 
-  val OnlyLetterDigit = "^[a-zA-Z0-9]+$".r
+  val OnlyLetterDigit = "^[a-zA-Z0-9*]+$".r
 
   def renderDate(date: LocalDate) = {
     val rendered = date format dateTime
