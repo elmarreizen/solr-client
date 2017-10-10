@@ -6,6 +6,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import akka.testkit.TestKitBase
+import nl.elmar.solr.client.api.SolrApi
 import org.apache.commons.io.FileUtils
 import org.apache.solr.client.solrj.embedded.JettySolrRunner
 import org.specs2.mutable.SpecificationLike
@@ -21,6 +22,8 @@ abstract class SolrSpec
   private var runner: JettySolrRunner = _
 
   implicit val materializer = ActorMaterializer()
+
+  def solrApi: SolrApi = new SolrApi(Uri("http://localhost:8983"))
 
   override def beforeAll() = {
     System.setProperty("solr.data.dir", tempDir.toFile.getAbsolutePath)

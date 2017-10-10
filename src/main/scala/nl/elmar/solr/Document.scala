@@ -15,12 +15,11 @@ object DocumentList {
 sealed trait FieldValue
 
 object FieldValue {
-  case class Primitive(value: PrimitiveValue) extends FieldValue
-  trait PrimitiveValue
-  object PrimitiveValue {
-    case class Date(value: LocalDate) extends PrimitiveValue
-    case class Int(value: scala.Int) extends PrimitiveValue
-    case class String(value: java.lang.String) extends PrimitiveValue
+  sealed trait Primitive extends FieldValue
+  object Primitive {
+    case class Date(value: LocalDate) extends Primitive
+    case class Long(value: scala.Long) extends Primitive
+    case class String(value: java.lang.String) extends Primitive
   }
   case class Array(value: List[FieldValue]) extends FieldValue
   case object Null extends FieldValue
