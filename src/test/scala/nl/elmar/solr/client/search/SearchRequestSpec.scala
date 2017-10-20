@@ -1,5 +1,7 @@
 package nl.elmar.solr.client.search
 
+import play.api.libs.json.JsString
+
 class SearchRequestSpec extends org.specs2.mutable.Specification {
 
   "SearchRequest" should {
@@ -78,6 +80,14 @@ class SearchRequestSpec extends org.specs2.mutable.Specification {
       SearchRequest.renderFilterExpression(name) === "name:John"
       val fullName = FilterExpression.Field("fullName", ValueExpression.Term.String("John Doe"))
       SearchRequest.renderFilterExpression(fullName) === "fullName:\"John Doe\""
+    }
+
+    "render filed collapsing in fq parameter" in {
+      val request =
+        SearchRequest(
+          fieldCollapsing = Some(FieldCollapsing("groupId", Sorting("price", SortOrder.Asc))))
+      val json = SearchRequest.bodyWriter.writes(request)
+      (json \ "params" \ "fq").get === JsString("{!collapse field=groupId sort='price asc'}")
     }
   }
 

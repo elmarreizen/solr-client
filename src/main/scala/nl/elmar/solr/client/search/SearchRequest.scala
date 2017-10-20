@@ -13,6 +13,7 @@ case class SearchRequest(
     rows: Option[Long] = None,
     sort: Option[Sorting] = None,
     grouping: Option[ResultGrouping] = None,
+    fieldCollapsing: Option[FieldCollapsing] = None,
     facets: List[FacetDefinition] = Nil
 )
 
@@ -118,6 +119,11 @@ case class ResultGrouping(
     numberOfGroups: Boolean = false
 )
 
+case class FieldCollapsing(
+    field: String,
+    sorting: Sorting
+)
+
 case class Sorting(
     field: String,
     order: SortOrder
@@ -182,13 +188,18 @@ object SearchRequest {
       renderValueExpression(ve)
   }
 
-  implicit val sortingWriter = Writes[Sorting] {
+  def soringAsString(sorting: Sorting): String = sorting match {
     case Sorting(field, order) =>
       val ord = order match {
         case SortOrder.Asc => "asc"
         case SortOrder.Desc => "desc"
       }
-      JsString(s"$field $ord")
+      s"$field $ord"
+  }
+
+  implicit val sortingWriter = Writes[Sorting] {
+    sorting =>
+      JsString(soringAsString(sorting))
   }
 
   implicit val FilterExpressionWriter = Writes[FilterExpression] { fd =>
@@ -256,15 +267,22 @@ object SearchRequest {
     JsString(list.map(_ + "!").mkString(","))
   }
 
+  implicit val fieldCollapsingWriter: Writes[FieldCollapsing] = {
+    case FieldCollapsing(field, sorting) =>
+      val sortingString = soringAsString(sorting)
+      JsString(s"{!collapse field=$field sort='$sortingString'}")
+  }
+
   implicit val bodyWriter: Writes[SearchRequest] = (
     (__ \ "query").write[String] and
       (__ \ "filter").writeNonEmptyList[FilterExpression] and
       (__ \ "params" \ "_route_").writeNonEmptyList[String](routingListWriter) and
+      (__ \ "params" \ "fq").writeNullable[FieldCollapsing] and
       (__ \ "params" \ "sort").writeNullable[Sorting] and
       (__ \ "params" \ "start").writeNullable[Long] and
       (__ \ "params" \ "rows").writeNullable[Long] and
       (__ \ "params").writeNullable[ResultGrouping] and
       (__ \ "facet").writeNonEmptyList(facetListWriter)
-    )(q => ("*:*", q.filter, q.routing, q.sort, q.start, q.rows, q.grouping, q.facets))
+    )(q => ("*:*", q.filter, q.routing, q.fieldCollapsing, q.sort, q.start, q.rows, q.grouping, q.facets))
 }
 
