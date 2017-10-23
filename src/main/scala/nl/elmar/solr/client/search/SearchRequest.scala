@@ -44,6 +44,10 @@ object ValueExpression {
     case class String(value: java.lang.String) extends Term
   }
 
+  object Wildcard {
+    case class PrefixMatch(prefix: String) extends ValueExpression
+  }
+
   case class OR(left: ValueExpression, right: ValueExpression) extends ValueExpression
   case class AND(left: ValueExpression, right: ValueExpression) extends ValueExpression
   case class NOT(exp: ValueExpression) extends ValueExpression
@@ -163,6 +167,7 @@ object SearchRequest {
     case ValueExpression.Term.String(v) => if (OnlyLetterDigit.findAllIn(v).hasNext) v else raw""""$v""""
     case ValueExpression.Term.Long(v) => v.toString
     case ValueExpression.Term.Date(v) => renderDate(v)
+    case ValueExpression.Wildcard.PrefixMatch(v) => s"$v*"
     case ValueExpression.Range(fromOpt, toOpt) =>
       val from = fromOpt.map(renderValueExpression).getOrElse("*")
       val to = toOpt.map(renderValueExpression).getOrElse("*")

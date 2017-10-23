@@ -1,6 +1,6 @@
 package nl.elmar.solr.client.search
 
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsArray, JsString}
 
 class SearchRequestSpec extends org.specs2.mutable.Specification {
 
@@ -88,6 +88,16 @@ class SearchRequestSpec extends org.specs2.mutable.Specification {
           fieldCollapsing = Some(FieldCollapsing("groupId", Sorting("price", SortOrder.Asc))))
       val json = SearchRequest.bodyWriter.writes(request)
       (json \ "params" \ "fq").get === JsString("{!collapse field=groupId sort='price asc'}")
+    }
+
+    "render wildcard filter expression" in {
+      import ValueExpression._
+      val request =
+        SearchRequest(
+          filter = FilterExpression.Field("source", OR(Wildcard.PrefixMatch("abc"), Term.String("zzz*"))) :: Nil
+        )
+      val json = SearchRequest.bodyWriter.writes(request)
+      (json \ "filter").get === JsArray(JsString("source:(abc* OR \"zzz*\")") :: Nil)
     }
   }
 
