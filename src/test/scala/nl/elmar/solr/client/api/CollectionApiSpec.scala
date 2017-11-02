@@ -2,6 +2,7 @@ package nl.elmar.solr.client.api
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, Uri}
 import akka.util.ByteString
+import nl.elmar.solr.client.search.SearchRequest
 import nl.elmar.solr.client.update.BatchUpdateRequest
 import nl.elmar.solr.{Document, FieldValue}
 
@@ -25,6 +26,15 @@ class CollectionApiSpec extends org.specs2.mutable.Specification {
         HttpEntity.Strict(
           ContentTypes.`application/json`,
           ByteString("""[{"id":0,"name":"John","age":25}]"""))
+    }
+
+    "create search request" in {
+      val searchRequest =
+        SearchRequest()
+      val solrApi = new SolrApi(Uri("http://localhost:8983"))
+      val httpRequest = solrApi.collections("collection").search.toHttpRequest(searchRequest)
+
+      httpRequest.uri.toString() mustEqual "http://localhost:8983/v2/collections/collection/query"
     }
   }
 }
