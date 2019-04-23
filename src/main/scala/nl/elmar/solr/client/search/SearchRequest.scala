@@ -30,6 +30,7 @@ object FilterExpression {
 
   case class OR(left: FilterExpression, right: FilterExpression) extends FilterExpression
   case class AND(left: FilterExpression, right: FilterExpression) extends FilterExpression
+  case class NOT(expr: FilterExpression) extends FilterExpression
 }
 
 sealed trait ValueExpression extends FilterExpression
@@ -182,13 +183,15 @@ object SearchRequest {
 
   def renderFilterExpression(fd: FilterExpression): String = fd match {
     case FilterExpression.Field(fieldName, exp, tagOpt, negative) =>
-      val tag = tagOpt map (tag => s"{!tag=$tag} ") getOrElse ""
+      val tag = tagOpt map (tag => s"{!tag=$tag}") getOrElse ""
       val negation = if (negative) "-" else ""
       s"$tag$negation$fieldName:${renderValueExpression(exp)}"
     case FilterExpression.OR(left, right) =>
       s"${renderFilterExpression(left)} OR ${renderFilterExpression(right)}"
     case FilterExpression.AND(left, right) =>
       s"(${renderFilterExpression(left)} AND ${renderFilterExpression(right)})"
+    case FilterExpression.NOT(expr) =>
+      s"!(${renderFilterExpression(expr)})"
     case ve: ValueExpression =>
       renderValueExpression(ve)
   }
