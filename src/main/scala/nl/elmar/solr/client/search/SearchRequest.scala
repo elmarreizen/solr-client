@@ -190,12 +190,12 @@ object SearchRequest {
         case FilterExpression.OR(leftFilter, rightFilter) =>
           val (leftRendered, leftTags) = loop(leftFilter)
           val (rightRendered, rightTags) = loop(rightFilter)
-          (s"$leftRendered OR $rightRendered",  leftTags ::: rightTags)
+          (s"($leftRendered OR $rightRendered)",  leftTags ::: rightTags)
 
         case FilterExpression.AND(leftFilter, rightFilter) =>
           val (leftRendered, leftTags) = loop(leftFilter)
           val (rightRendered, rightTags) = loop(rightFilter)
-          (s"$leftRendered AND $rightRendered", leftTags ::: rightTags)
+          (s"($leftRendered AND $rightRendered)", leftTags ::: rightTags)
 
         case FilterExpression.NOT(expr) =>
           val (rendered, exprTags) = loop(expr)
@@ -207,7 +207,7 @@ object SearchRequest {
     }
 
     val (renderedFilter, tags) = loop(fd)
-    val renderedTags = if (tags.isEmpty) "" else tags.mkString("{!tag=", ",", "}")
+    val renderedTags = if (tags.isEmpty) "" else tags.toSet.mkString("{!tag=", ",", "}")
 
     s"$renderedTags$renderedFilter"
   }

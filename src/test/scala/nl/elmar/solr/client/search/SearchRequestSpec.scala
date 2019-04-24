@@ -71,7 +71,7 @@ class SearchRequestSpec extends org.specs2.mutable.Specification {
       val fd2 = FilterExpression.Field("test2", ValueExpression.Term.String("testexp"), Some("testtag2"))
       val or = FilterExpression.OR(fd1, fd2)
 
-      SearchRequest.renderFilterExpression(or) === "{!tag=testtag1,testtag2}test1:0 OR test2:testexp"
+      SearchRequest.renderFilterExpression(or) === "{!tag=testtag1,testtag2}(test1:0 OR test2:testexp)"
     }
 
     "quote string containing spaces" in {
