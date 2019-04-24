@@ -1,6 +1,5 @@
 package nl.elmar.solr.client.search
 
-import akka.http.scaladsl.model._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -181,19 +180,36 @@ object SearchRequest {
       s"(NOT ${renderValueExpression(expression)})"
   }
 
-  def renderFilterExpression(fd: FilterExpression): String = fd match {
-    case FilterExpression.Field(fieldName, exp, tagOpt, negative) =>
-      val tag = tagOpt map (tag => s"{!tag=$tag}") getOrElse ""
-      val negation = if (negative) "-" else ""
-      s"$tag$negation$fieldName:${renderValueExpression(exp)}"
-    case FilterExpression.OR(left, right) =>
-      s"${renderFilterExpression(left)} OR ${renderFilterExpression(right)}"
-    case FilterExpression.AND(left, right) =>
-      s"(${renderFilterExpression(left)} AND ${renderFilterExpression(right)})"
-    case FilterExpression.NOT(expr) =>
-      s"!(${renderFilterExpression(expr)})"
-    case ve: ValueExpression =>
-      renderValueExpression(ve)
+  def renderFilterExpression(fd: FilterExpression): String = {
+    def loop(fd: FilterExpression): (String, List[String])= {
+      fd match {
+        case FilterExpression.Field(fieldName, exp, tagOpt, negative) =>
+          val negation = if (negative) "-" else ""
+          (s"$negation$fieldName:${renderValueExpression(exp)}", tagOpt.toList)
+
+        case FilterExpression.OR(leftFilter, rightFilter) =>
+          val (leftRendered, leftTags) = loop(leftFilter)
+          val (rightRendered, rightTags) = loop(rightFilter)
+          (s"$leftRendered OR $rightRendered",  leftTags ::: rightTags)
+
+        case FilterExpression.AND(leftFilter, rightFilter) =>
+          val (leftRendered, leftTags) = loop(leftFilter)
+          val (rightRendered, rightTags) = loop(rightFilter)
+          (s"$leftRendered AND $rightRendered", leftTags ::: rightTags)
+
+        case FilterExpression.NOT(expr) =>
+          val (rendered, exprTags) = loop(expr)
+          (s"!($rendered)", exprTags)
+
+        case ve: ValueExpression =>
+          (renderValueExpression(ve), Nil)
+      }
+    }
+
+    val (renderedFilter, tags) = loop(fd)
+    val renderedTags = if (tags.isEmpty) "" else tags.mkString("{!tag=", ",", "}")
+
+    s"$renderedTags$renderedFilter"
   }
 
   def soringAsString(sorting: Sorting): String = sorting match {
