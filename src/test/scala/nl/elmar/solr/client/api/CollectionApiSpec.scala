@@ -12,9 +12,9 @@ class CollectionApiSpec extends org.specs2.mutable.Specification {
       val batchUpdate =
         BatchUpdateRequest(
           Document(
-            "id" -> FieldValue.Primitive.Long(0l),
+            "id" -> FieldValue.Primitive.Long(0L),
             "name" -> FieldValue.Primitive.String("John"),
-            "age" -> FieldValue.Primitive.Long(25l),
+            "age" -> FieldValue.Primitive.Long(25L),
           ) ::
           Nil
         )

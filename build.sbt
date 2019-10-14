@@ -2,14 +2,16 @@ name := "solr-client"
 
 organization := "nl.elmar"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.13.1"
+crossScalaVersions := Seq("2.12.8", scalaVersion.value)
 
-val `akka-http-version` = "10.0.5"
+val `akka-http-version` = "10.1.10"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-json" % "2.6.0",
+  "com.typesafe.play" %% "play-json" % "2.7.4",
   "com.typesafe.akka" %% "akka-http" % `akka-http-version`,
-  "org.specs2" %% "specs2-core" % "3.8.9" % "test",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.25",
+  "org.specs2" %% "specs2-core" % "4.7.1" % "test",
   "org.slf4j" % "slf4j-api" % "1.7.25" % "test",
   "ch.qos.logback" % "logback-classic" % "1.2.3" % "test",
   "com.typesafe.akka" %% "akka-http-testkit" % `akka-http-version` % "test"

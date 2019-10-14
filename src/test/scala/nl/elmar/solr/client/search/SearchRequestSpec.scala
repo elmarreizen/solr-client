@@ -1,6 +1,6 @@
 package nl.elmar.solr.client.search
 
-import play.api.libs.json.{JsArray, JsString}
+import play.api.libs.json.{JsArray, JsString, Json}
 
 class SearchRequestSpec extends org.specs2.mutable.Specification {
 
@@ -18,7 +18,9 @@ class SearchRequestSpec extends org.specs2.mutable.Specification {
             ResultGrouping("field1", sort = Some(Sorting("field2", SortOrder.Desc)))
           )
         )
-      SearchRequest.bodyWriter.writes(query).toString === """{"query":"*:*","params":{"start":10,"rows":20,"group":true,"group.field":"field1","group.sort":"field2 desc","group.ngroups":false}}"""
+
+      val expected = Json.parse("""{"query":"*:*","params":{"group.sort":"field2 desc","start":10,"group.ngroups":false,"rows":20,"group.field":"field1","group":true}}""")
+      SearchRequest.bodyWriter.writes(query) === expected
     }
 
     "render facets" in {
